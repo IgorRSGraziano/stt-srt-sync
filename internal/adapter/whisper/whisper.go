@@ -1,4 +1,4 @@
-package whisper
+package adapter
 
 import (
 	"context"
@@ -16,14 +16,22 @@ func NewWhisperService(apiKey string) *WhisperService {
 	return &WhisperService{client: client}
 }
 
-func (w *WhisperService) GenerateSRT(audioPath, lyric string) (*string, error) {
+func (w *WhisperService) GenerateSRT(audioPath string, lyric *string) (*string, error) {
 	ctx := context.Background()
+
+	var prompt string
+
+	if lyric != nil {
+		prompt = *lyric
+	} else {
+		prompt = ""
+	}
 
 	req := openai.AudioRequest{
 		Model:    openai.Whisper1,
 		FilePath: audioPath,
 		Format:   openai.AudioResponseFormatSRT,
-		Prompt:   lyric,
+		Prompt:   prompt,
 	}
 
 	resp, err := w.client.CreateTranscription(ctx, req)

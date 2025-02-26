@@ -1,9 +1,9 @@
-package whisper_test
+package adapter_test
 
 import (
 	"fmt"
 	"os"
-	"srtsync/internal/adapter/whisper"
+	adapter "srtsync/internal/adapter/whisper"
 	"srtsync/testutils"
 	"testing"
 )
@@ -23,7 +23,7 @@ func TestInstance(t *testing.T) {
 		return
 	}
 
-	whisperService := whisper.NewWhisperService(apiKey)
+	whisperService := adapter.NewWhisperService(apiKey)
 
 	if whisperService == nil {
 		t.Error("Error creating whisper service")
@@ -45,7 +45,7 @@ func TestTranscribeAudio(t *testing.T) {
 		return
 	}
 
-	whisperService := whisper.NewWhisperService(apiKey)
+	whisperService := adapter.NewWhisperService(apiKey)
 
 	if whisperService == nil {
 		t.Error("Error creating whisper service")
