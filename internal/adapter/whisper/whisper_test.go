@@ -5,6 +5,7 @@ import (
 	"os"
 	adapter "srtsync/internal/adapter/whisper"
 	"srtsync/testutils"
+	"srtsync/utils"
 	"testing"
 )
 
@@ -58,7 +59,7 @@ func TestTranscribeAudio(t *testing.T) {
 
 	}
 
-	text, err := whisperService.GenerateSRT(testutils.GetTestDataFilePath("music.mp3"), string(lyrics))
+	text, err := whisperService.GenerateSRT(testutils.GetTestDataFilePath("music.mp3"), utils.Ptr(string(lyrics)))
 
 	if err != nil {
 		t.Error("Error transcribing audio")

@@ -34,7 +34,7 @@ func NewSRTCommand() *cobra.Command {
 		Aliases: []string{"g"},
 		Short:   "Generate SRT file from audio and lyric (optional)",
 		Run: func(cmd *cobra.Command, args []string) {
-			// newSrtCommand(audioFile, lyricFile, outputFile)
+			newSrtCommand(audioFile, &lyricFile, outputFile)
 		},
 	}
 
