@@ -2,25 +2,38 @@ package command
 
 import (
 	"fmt"
-	adapter "srtsync/internal/adapter/whisper"
+	gpt "srtsync/internal/adapter/gpt"
+	whisper "srtsync/internal/adapter/whisper"
 	"srtsync/internal/core"
 
 	"github.com/spf13/cobra"
 )
 
-func newSrtCommand(audioFile string, lyricFile *string, outputFile string) {
-	whisperService := adapter.NewWhisperService("")
+func newSrtCommand(audioFile string, lyricFile *string, outputFile string, translateTo string) {
+	whisperService := whisper.NewWhisperService("")
+	gpt := gpt.NewGPTService("")
 
-	service := core.NewSTTService(whisperService)
+	sttService := core.NewSTTService(whisperService)
+	translateService := core.NewTranslatorService(gpt)
 
 	// Executar a conversão
-	text, err := service.GenerateSRT(audioFile, lyricFile)
+	text, err := sttService.GenerateSRT(audioFile, lyricFile)
 	if err != nil {
-		fmt.Println("Erro ao gerar SRT:", err)
+		fmt.Println("error on generate srt:", err)
 		return
 	}
 
-	fmt.Println("Arquivo SRT gerado com sucesso:", outputFile)
+	if translateTo != "" {
+		translatedText, err := translateService.Translate(text, translateTo)
+		if err != nil {
+			fmt.Println("error on translate:", err)
+			return
+		}
+
+		text = translatedText
+	}
+
+	fmt.Println("SRT file generated at", outputFile)
 	fmt.Println(*text)
 }
 
@@ -29,12 +42,14 @@ func NewSRTCommand() *cobra.Command {
 	var outputFile string
 	var lyricFile string
 
+	var translateTo string
+
 	cmd := &cobra.Command{
 		Use:     "generate",
 		Aliases: []string{"g"},
 		Short:   "Generate SRT file from audio and lyric (optional)",
 		Run: func(cmd *cobra.Command, args []string) {
-			newSrtCommand(audioFile, &lyricFile, outputFile)
+			newSrtCommand(audioFile, &lyricFile, outputFile, translateTo)
 		},
 	}
 
@@ -46,6 +61,9 @@ func NewSRTCommand() *cobra.Command {
 
 	cmd.Flags().
 		StringVarP(&lyricFile, "lyric", "l", "", "File path to lyric (simple text)")
+
+	cmd.Flags().
+		StringVarP(&translateTo, "translate", "t", "", "Translate lyric to another language")
 
 	cmd.MarkFlagRequired("audio")
 
